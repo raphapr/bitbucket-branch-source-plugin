@@ -134,6 +134,11 @@ public class BitbucketSCMSource extends SCMSource {
     private String excludes = "";
 
     /**
+       * Whether to skip discovered pull requests.
+     */
+    private boolean skipPullRequests;
+
+    /**
      * If true, a webhook will be auto-registered in the repository managed by this source.
      */
     private boolean autoRegisterHook = false;
@@ -194,6 +199,16 @@ public class BitbucketSCMSource extends SCMSource {
     public String getCheckoutCredentialsId() {
         return checkoutCredentialsId;
     }
+
+    public boolean isSkipPullRequests() {
+        return skipPullRequests;
+    }
+
+    @DataBoundSetter
+    public void setSkipPullRequests(boolean skipPullRequests) {
+        this.skipPullRequests = skipPullRequests;
+    }
+
 
     @DataBoundSetter
     public void setCheckoutCredentialsId(String checkoutCredentialsId) {
@@ -312,7 +327,9 @@ public class BitbucketSCMSource extends SCMSource {
         // Search branches
         retrieveBranches(criteria, observer, listener);
         // Search pull requests
-        retrievePullRequests(criteria, observer, listener);
+        if (!isSkipPullRequests()) {
+            retrievePullRequests(criteria, observer, listener);
+        }
     }
 
     private void retrievePullRequests(SCMSourceCriteria criteria, SCMHeadObserver observer, final TaskListener listener)
